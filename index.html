@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JsCubeTimer</title>
+    <script type="text/javascript" src="jsCubeTimer.js"></script>
+</head>
+<body>
+
+<div class="hero-unit" style="text-align: center;">
+    <p id="timerLabel" style="margin: 10px 0; font-size: 160px; font-weight: 800">00:00.00</p>
+</div>
+<div style="text-align: center;">
+    <p id="scrambleSequence" style="font-size: 20px; font-weight: 800; font-family: 'courier new'"></p>
+</div>
+<div id="scoreList"></div>
+
+<script type="text/javascript">
+
+    var timerLabel = document.getElementById('timerLabel');
+    var scrambleSequenceLabel = document.getElementById('scrambleSequence');
+    var scoreListBox = document.getElementById('scoreList');
+
+    // generate 25 moves and place the string in the scrambleSequence element
+    var scrambleMoveGenerator = new ScrambleMoveGenerator(25, scrambleSequenceLabel);
+
+    // create the timer and pass the scrambleMoveGenerator
+    var cubeTimer = new CubeTimer(timerLabel, scrambleMoveGenerator, new ScoreList(), new ScoreListView(scoreListBox));
+
+</script>
+
+</body>
+</html>
