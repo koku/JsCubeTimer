@@ -17,7 +17,6 @@ function CubeTimer(timerLabel, scrambleMoveGenerator, scoreList, scoreListView)
 	this.scrambleMoveGenerator = scrambleMoveGenerator;
 	this.scoreList = scoreList;
 	this.scoreListView = scoreListView;
-	this.timeFormatter = new TimeFormatter();
 
 	this.init();
 }
@@ -166,7 +165,7 @@ Object.extend(CubeTimer.prototype,
 		// sets the timer label to the given value
 		setTimerLabel: function(value)
 		{
-			this.timerLabel.textContent = this.timeFormatter.microSecondsToTime(value);
+			this.timerLabel.textContent = TimeFormatter().microSecondsToTime(value);
 		}
 	});
 

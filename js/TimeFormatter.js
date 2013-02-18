@@ -1,5 +1,11 @@
 function TimeFormatter()
 {
+	// Singleton :)
+	if (!TimeFormatter.TimeFormatterInstance && this == window) {
+		TimeFormatter.TimeFormatterInstance = new TimeFormatter();
+	}
+
+	return TimeFormatter.TimeFormatterInstance;
 }
 
 Object.extend(TimeFormatter.prototype,
