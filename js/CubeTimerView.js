@@ -25,7 +25,7 @@ CubeTimerView = Backbone.View.extend(
 	{
 		var timer = this.options.timer;
 		this.el.innerHTML = this.template({
-			time: TimeFormatter().microSecondsToTime(timer.currentTime),
+			time: TimeFormatter().microSecondsToTime(timer.getCurrentDuration()),
 			scrambleSequence: this.options.timer.currentScrambleSequence
 		});
 	}

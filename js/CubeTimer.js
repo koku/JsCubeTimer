@@ -7,7 +7,6 @@ function CubeTimer(scoreList)
 {
 	this.startTime = 0;
 	this.endTime = 0;
-  this.currentTime = 0; // The time to display for the timer, this doesn't reset the last timer's time until the spacebar is pressed
 	this.running = false;
 	this.intervalId = null;
 	this.justStopped = false;
@@ -41,7 +40,6 @@ Object.extend(CubeTimer.prototype,
 		{
 			this.running = false;
 			this.startTime = 0;
-      this.currentTime = 0;
 			this.endTime = 0;
 
 			this.broadcast('reset');
@@ -97,11 +95,22 @@ Object.extend(CubeTimer.prototype,
 		// returns the duration so far
 		getCurrentDuration: function()
 		{
-			if(!this.running)
-				return null;
-
-			var currentDate = new Date();
-			return currentDate - this.startTime;
+      if (this.startTime && this.endTime)
+      {
+        // Timer is already stopped, return the completed time
+        return this.endTime - this.startTime;
+      } 
+      else if (this.startTime && !this.endTime)
+      {
+        // Timer is still running, return start till now difference
+        var currentDate = new Date();
+        return currentDate - this.startTime;
+      }
+      else
+      {
+        // Timer is in the 'reset' state, no return nothing
+        return null;
+      }
 		},
 
 		// get the current timestamp in milliseconds
@@ -134,7 +143,7 @@ Object.extend(CubeTimer.prototype,
 				this.reset();
         this.broadcast('reset');
 			}
-			else if(key == 83) // s
+			else if(key == 83 && !this.running) // s
 			{
 				// generate and show a new scramble sequence
 				this.currentScrambleSequence = this.scrambleMoveGenerator.generateSequence();
@@ -165,8 +174,7 @@ Object.extend(CubeTimer.prototype,
 				this.stopTimer();
 				this.justStopped = true;
 			} else {
-        this.currentTime = 0;
-        this.broadcast('preStart');
+        this.reset();
       }
 		},
 
@@ -175,7 +183,6 @@ Object.extend(CubeTimer.prototype,
 		{
 			if(this.running)
 			{
-        this.currentTime = this.getCurrentDuration();
 				this.broadcast('tick', this.getCurrentDuration());
 			}
 			else
