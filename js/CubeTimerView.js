@@ -5,11 +5,21 @@ CubeTimerView = Backbone.View.extend(
 
 	initialize: function()
 	{
+		this.options.timer.addListener('preStart', this.render.bind(this));
 		this.options.timer.addListener('tick', this.render.bind(this));
-		this.options.timer.addListener('stop', this.render.bind(this));
+		this.options.timer.addListener('stop', this.onTimerStop.bind(this));
 		this.options.timer.addListener('reset', this.render.bind(this));
 		this.options.timer.addListener('newScrambleSequence', this.render.bind(this));
 	},
+  
+  onTimerStop: function(score) 
+  {
+			// store the score :)
+			this.options.scores.add(score);
+			score.save();
+
+      this.render();
+  },
 
 	render: function()
 	{

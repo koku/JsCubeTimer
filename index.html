@@ -57,7 +57,8 @@
 			scores.fetch();
 
 			var cubeTimerView = new CubeTimerView({
-				timer: new CubeTimer(scores)
+				timer: new CubeTimer(scores),
+                scores: scores
 			});
 			cubeTimerView.render();
 			document.body.appendChild(cubeTimerView.el);

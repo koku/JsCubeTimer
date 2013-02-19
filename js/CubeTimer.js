@@ -6,8 +6,8 @@
 function CubeTimer(scoreList)
 {
 	this.startTime = 0;
-	this.currentTime = 0;
 	this.endTime = 0;
+  this.currentTime = 0; // The time to display for the timer, this doesn't reset the last timer's time until the spacebar is pressed
 	this.running = false;
 	this.intervalId = null;
 	this.justStopped = false;
@@ -16,6 +16,7 @@ function CubeTimer(scoreList)
 	this.currentScrambleSequence = null;
 	this.scoreList = scoreList;
 	this.listeners = {
+    preStart: [],
 		start: [],
 		stop: [],
     reset: [],
@@ -40,6 +41,7 @@ Object.extend(CubeTimer.prototype,
 		{
 			this.running = false;
 			this.startTime = 0;
+      this.currentTime = 0;
 			this.endTime = 0;
 
 			this.broadcast('reset');
@@ -80,12 +82,10 @@ Object.extend(CubeTimer.prototype,
 				scrambleSequence: this.scrambleMoveGenerator.getPreviousSequence(),
 				score: this.getDuration()
 			});
-			this.scoreList.add(score);
-			score.save();
 
 			this.currentScrambleSequence = this.scrambleMoveGenerator.generateSequence();
 
-			this.broadcast('stop');
+			this.broadcast('stop', score);
 		},
 
 		// get the duration
@@ -164,11 +164,10 @@ Object.extend(CubeTimer.prototype,
 			{
 				this.stopTimer();
 				this.justStopped = true;
-			}
-			else if(!this.justStopped)
-			{
-				this.currentTime = 0;
-			}
+			} else {
+        this.currentTime = 0;
+        this.broadcast('preStart');
+      }
 		},
 
 		// Executes while the timer is running
@@ -176,8 +175,8 @@ Object.extend(CubeTimer.prototype,
 		{
 			if(this.running)
 			{
-				this.currentTime = this.getCurrentDuration();
-				this.broadcast('tick', this.currentTime);
+        this.currentTime = this.getCurrentDuration();
+				this.broadcast('tick', this.getCurrentDuration());
 			}
 			else
 			{
