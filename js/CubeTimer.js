@@ -16,9 +16,11 @@ function CubeTimer(scoreList)
 	this.currentScrambleSequence = null;
 	this.scoreList = scoreList;
 	this.listeners = {
-		tick: [],
+		start: [],
 		stop: [],
-		start: []
+    reset: [],
+		tick: [],
+    newScrambleSequence: []
 	};
 
 	this.init();
@@ -39,6 +41,8 @@ Object.extend(CubeTimer.prototype,
 			this.running = false;
 			this.startTime = 0;
 			this.endTime = 0;
+
+			this.broadcast('reset');
 		},
 
 		// start the timer
@@ -128,11 +132,13 @@ Object.extend(CubeTimer.prototype,
 			{
 				// reset everything
 				this.reset();
+        this.broadcast('reset');
 			}
 			else if(key == 83) // s
 			{
 				// generate and show a new scramble sequence
 				this.currentScrambleSequence = this.scrambleMoveGenerator.generateSequence();
+        this.broadcast('newScrambleSequence');
 			}
 		},
 
@@ -179,20 +185,22 @@ Object.extend(CubeTimer.prototype,
 			}
 		},
 
-		broadcast: function(event, parameter)
+		broadcast: function(eventName, parameter)
 		{
-			// todo
-			for (var i = 0; i < this.listeners[event].length; i++)
-			{
-				this.listeners[event][i](parameter);
+      if (eventName in this.listeners)
+      {
+        for (var i = 0; i < this.listeners[eventName].length; i++)
+        {
+          this.listeners[eventName][i](parameter);
+        }
 			}
 		},
 
-		addListener: function(event, callback)
+		addListener: function(eventName, callback)
 		{
-			if (event == 'stop' || event == 'start' || event == 'tick')
+			if (eventName in this.listeners)
 			{
-				this.listeners[event].push(callback);
+				this.listeners[eventName].push(callback);
 			}
 		}
 	});

@@ -7,6 +7,8 @@ CubeTimerView = Backbone.View.extend(
 	{
 		this.options.timer.addListener('tick', this.render.bind(this));
 		this.options.timer.addListener('stop', this.render.bind(this));
+		this.options.timer.addListener('reset', this.render.bind(this));
+		this.options.timer.addListener('newScrambleSequence', this.render.bind(this));
 	},
 
 	render: function()
