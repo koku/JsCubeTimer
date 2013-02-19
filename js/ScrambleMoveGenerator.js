@@ -1,13 +1,11 @@
 /**
  * Generates a scramble sequence of {amount} moves
  * @param amount
- * @param sequenceLabel
  * @constructor
  */
-function ScrambleMoveGenerator(amount, sequenceLabel)
+function ScrambleMoveGenerator(amount)
 {
 	this.amount = amount;
-	this.sequenceLabel = sequenceLabel;
 	this.scrambleList = [];
 	this.moveList = [];
 	this.previousSequence = '';
@@ -177,7 +175,6 @@ Object.extend(ScrambleMoveGenerator.prototype,
 			}
 
 			this.resetSequence();
-			this.sequenceLabel.textContent = returnString;
 			this.previousSequence = returnString;
 			return returnString;
 		},

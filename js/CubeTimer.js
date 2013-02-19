@@ -1,22 +1,25 @@
 /**
  * A timer that can be used for Rubik's cube timing
- * @param timerLabel
  * @param scrambleMoveGenerator
- * @param scoreList
- * @param scoreListView
  * @constructor
  */
-function CubeTimer(timerLabel, scrambleMoveGenerator, scoreList, scoreListView)
+function CubeTimer(scoreList)
 {
-	this.timerLabel = timerLabel;
 	this.startTime = 0;
+	this.currentTime = 0;
 	this.endTime = 0;
 	this.running = false;
 	this.intervalId = null;
 	this.justStopped = false;
-	this.scrambleMoveGenerator = scrambleMoveGenerator;
+	this.numScrambleMoves = 25;
+	this.scrambleMoveGenerator = new ScrambleMoveGenerator(this.numScrambleMoves);
+	this.currentScrambleSequence = null;
 	this.scoreList = scoreList;
-	this.scoreListView = scoreListView;
+	this.listeners = {
+		tick: [],
+		stop: [],
+		start: []
+	};
 
 	this.init();
 }
@@ -28,16 +31,16 @@ Object.extend(CubeTimer.prototype,
 			// bind keydown to this objects keyPressed method
 			document.addEventListener('keyup', this.keyPressedUp.bind(this));
 			document.addEventListener('keydown', this.keyPressedDown.bind(this));
-			this.scrambleMoveGenerator.generateSequence();
-			this.scoreListView.render();
+			this.currentScrambleSequence = this.scrambleMoveGenerator.generateSequence();
 		},
+
 		reset: function()
 		{
 			this.running = false;
 			this.startTime = 0;
 			this.endTime = 0;
-			this.setTimerLabel(0);
 		},
+
 		// start the timer
 		startTimer: function()
 		{
@@ -49,9 +52,12 @@ Object.extend(CubeTimer.prototype,
 			this.startTime = this.getTimestamp();
 			this.running = true;
 
+			this.broadcast('start');
+
 			// bind interval to updateView so the current duration gets updated on screen
-			this.intervalId = setInterval(this.updateView.bind(this), 1);
+			this.intervalId = setInterval(this.tick.bind(this), 1);
 		},
+
 		// stop the timer
 		stopTimer: function()
 		{
@@ -65,24 +71,25 @@ Object.extend(CubeTimer.prototype,
 			if(this.intervalId)
 				clearInterval(this.intervalId);
 
-			// set the final result time
-			this.setTimerLabel(this.getDuration());
-
 			// store the score :)
 			var score = new Score({
-				scrambleSequence: scrambleMoveGenerator.getPreviousSequence(),
+				scrambleSequence: this.scrambleMoveGenerator.getPreviousSequence(),
 				score: this.getDuration()
 			});
 			this.scoreList.add(score);
 			score.save();
 
-			this.scoreListView.render();
+			this.currentScrambleSequence = this.scrambleMoveGenerator.generateSequence();
+
+			this.broadcast('stop');
 		},
+
 		// get the duration
 		getDuration: function()
 		{
 			return this.endTime - this.startTime;
 		},
+
 		// returns the duration so far
 		getCurrentDuration: function()
 		{
@@ -92,22 +99,24 @@ Object.extend(CubeTimer.prototype,
 			var currentDate = new Date();
 			return currentDate - this.startTime;
 		},
+
 		// get the current timestamp in milliseconds
 		getTimestamp: function()
 		{
 			var date = new Date();
 			return date.getTime();
 		},
+
 		// calls the correct method for the pressed key
 		keyPressedUp: function(e)
 		{
-
 			var key = e.keyCode || e.charCode;
 			if(key == 32)
 			{
 				this.spacebarUp();
 			}
 		},
+
 		keyPressedDown: function(e)
 		{
 			var key = e.keyCode || e.charCode;
@@ -123,9 +132,10 @@ Object.extend(CubeTimer.prototype,
 			else if(key == 83) // s
 			{
 				// generate and show a new scramble sequence
-				this.scrambleMoveGenerator.generateSequence();
+				this.currentScrambleSequence = this.scrambleMoveGenerator.generateSequence();
 			}
 		},
+
 		// action to perform when spacebar is released
 		spacebarUp: function()
 		{
@@ -140,6 +150,7 @@ Object.extend(CubeTimer.prototype,
 				this.startTimer();
 			}
 		},
+
 		// action to perform when spacebar is pressed down
 		spacebarDown: function()
 		{
@@ -147,25 +158,42 @@ Object.extend(CubeTimer.prototype,
 			{
 				this.stopTimer();
 				this.justStopped = true;
-				this.scrambleMoveGenerator.generateSequence();
 			}
 			else if(!this.justStopped)
 			{
-				this.setTimerLabel(0);
+				this.currentTime = 0;
 			}
 		},
-		// updates the timer label with the current duration
-		updateView: function()
+
+		// Executes while the timer is running
+		tick: function()
 		{
 			if(this.running)
-				this.setTimerLabel(this.getCurrentDuration());
+			{
+				this.currentTime = this.getCurrentDuration();
+				this.broadcast('tick', this.currentTime);
+			}
 			else
+			{
 				clearInterval(this.intervalId);
+			}
 		},
-		// sets the timer label to the given value
-		setTimerLabel: function(value)
+
+		broadcast: function(event, parameter)
 		{
-			this.timerLabel.textContent = TimeFormatter().microSecondsToTime(value);
+			// todo
+			for (var i = 0; i < this.listeners[event].length; i++)
+			{
+				this.listeners[event][i](parameter);
+			}
+		},
+
+		addListener: function(event, callback)
+		{
+			if (event == 'stop' || event == 'start' || event == 'tick')
+			{
+				this.listeners[event].push(callback);
+			}
 		}
 	});
 
