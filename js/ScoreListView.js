@@ -9,7 +9,7 @@ ScoreListView = Backbone.View.extend(
 
 	initialize: function()
 	{
-
+		this.options.scores.bind('add', this.render.bind(this));
 	},
 
 	render: function()
@@ -21,4 +21,3 @@ ScoreListView = Backbone.View.extend(
 		});
 	}
 });
-

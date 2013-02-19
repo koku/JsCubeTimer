@@ -28,7 +28,7 @@ Scores = Backbone.Collection.extend(
 			sum += this.models[i].get('score');
 		}
 
-		return sum / scores.length;
+		return sum / this.length;
 	},
 
 	getAllScores: function()

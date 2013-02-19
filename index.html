@@ -22,9 +22,19 @@
 	</script>
 
 
+	<script type="text/template" id="tpl-cubeTimer">
+		<div class="hero-unit" style="text-align: center;">
+			<p id="timerLabel" style="margin: 10px 0; font-size: 160px; font-weight: 800"><%- time %></p>
+		</div>
+		<div style="text-align: center;">
+			<p id="scrambleSequence" style="font-size: 20px; font-weight: 800; font-family: 'courier new'"><%- scrambleSequence %></p>
+		</div>
+	</script>
+
 	<script type="text/javascript" src="js/app.js"></script>
 	<script type="text/javascript" src="js/TimeFormatter.js"></script>
 	<script type="text/javascript" src="js/CubeTimer.js"></script>
+	<script type="text/javascript" src="js/CubeTimerView.js"></script>
 	<script type="text/javascript" src="js/Score.js"></script>
 	<script type="text/javascript" src="js/Scores.js"></script>
 	<script type="text/javascript" src="js/ScoreListView.js"></script>
@@ -34,31 +44,36 @@
 </head>
 <body>
 
-<div class="hero-unit" style="text-align: center;">
-    <p id="timerLabel" style="margin: 10px 0; font-size: 160px; font-weight: 800">00:00.00</p>
-</div>
-<div style="text-align: center;">
-    <p id="scrambleSequence" style="font-size: 20px; font-weight: 800; font-family: 'courier new'"></p>
-</div>
-
 <script type="text/javascript">
+	var Controller = {
+		index: function() {
+			var timerLabel = document.getElementById('timerLabel');
+			var scrambleSequenceLabel = document.getElementById('scrambleSequence');
+			var scoreListBox = document.getElementById('scoreList');
 
-    var timerLabel = document.getElementById('timerLabel');
-    var scrambleSequenceLabel = document.getElementById('scrambleSequence');
-    var scoreListBox = document.getElementById('scoreList');
+			// generate 25 moves and place the string in the scrambleSequence element
+			//var scrambleMoveGenerator = new ScrambleMoveGenerator(25, scrambleSequenceLabel);
+			var scores = new Scores();
+			scores.fetch();
 
-    // generate 25 moves and place the string in the scrambleSequence element
-    var scrambleMoveGenerator = new ScrambleMoveGenerator(25, scrambleSequenceLabel);
+			var cubeTimerView = new CubeTimerView({
+				timer: new CubeTimer(scores),
+                scores: scores
+			});
+			cubeTimerView.render();
+			document.body.appendChild(cubeTimerView.el);
 
-	var scores = new Scores();
-	scores.fetch();
+			var scoreView = new ScoreListView({ scores: scores});
+			scoreView.render();
+			document.body.appendChild(scoreView.el);
 
-	var scoreView = new ScoreListView({ scores: scores});
-	document.body.appendChild(scoreView.el);
 
-    // create the timer and pass the scrambleMoveGenerator
-    var cubeTimer = new CubeTimer(timerLabel, scrambleMoveGenerator, scores, scoreView);
+			// create the timer and pass the scrambleMoveGenerator
+			//var cubeTimer = new CubeTimer(timerLabel, scrambleMoveGenerator, scores, scoreView);
+		}
+	}
 
+	Controller.index();
 </script>
 
 </body>
