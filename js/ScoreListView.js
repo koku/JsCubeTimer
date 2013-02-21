@@ -7,6 +7,16 @@ ScoreListView = Backbone.View.extend(
 		id: "scoreList"
 	},
 
+  events: {
+    "click .delete": "delete"
+  },
+
+  delete: function(event) {
+    var score = this.options.scores.get(event.currentTarget.getAttribute('data-id'));
+    score.destroy();
+    this.render();
+  },
+
 	initialize: function()
 	{
 		this.options.scores.bind('add', this.render.bind(this));
