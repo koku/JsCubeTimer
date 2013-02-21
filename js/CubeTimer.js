@@ -14,6 +14,7 @@ function CubeTimer(scoreList)
 	this.scrambleMoveGenerator = new ScrambleMoveGenerator(this.numScrambleMoves);
 	this.currentScrambleSequence = null;
 	this.scoreList = scoreList;
+  this.spacebarIsDown = false; // don't re-process keypress when spacebar is held down
 	this.listeners = {
     preStart: [],
 		start: [],
@@ -133,7 +134,7 @@ Object.extend(CubeTimer.prototype,
 		keyPressedDown: function(e)
 		{
 			var key = e.keyCode || e.charCode;
-			if(key == 32) // space
+			if(key == 32 && !this.spacebarIsDown) // space
 			{
 				this.spacebarDown();
 			}
@@ -154,6 +155,8 @@ Object.extend(CubeTimer.prototype,
 		// action to perform when spacebar is released
 		spacebarUp: function()
 		{
+      this.spacebarIsDown = false;
+
 			if(this.justStopped)
 			{
 				this.justStopped = false;
@@ -169,6 +172,8 @@ Object.extend(CubeTimer.prototype,
 		// action to perform when spacebar is pressed down
 		spacebarDown: function()
 		{
+      this.spacebarIsDown = true;
+
 			if(this.running)
 			{
 				this.stopTimer();
