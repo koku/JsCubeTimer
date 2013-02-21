@@ -16,7 +16,7 @@
 		<h2>Scores:</h2>
 		<ul>
 			<% scores.each(function(score) { %>
-			<li><%- score.getFormattedScore() %> (<%- score.get('scrambleSequence') %>)</li>
+			<li><%- score.getFormattedScore() %> (<%- score.get('scrambleSequence') %>) <a data-id="<%- score.id %>" href="#" class="delete">&times;</a></li>
 			<% }); %>
 		</ul>
 	</script>
